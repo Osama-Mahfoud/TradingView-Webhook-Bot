@@ -8,7 +8,6 @@ import smtplib
 import ssl
 from email.mime.text import MIMEText
 
-
 from discord_webhook import DiscordEmbed, DiscordWebhook
 from slack_webhook import Slack
 from telegram import Bot
@@ -18,6 +17,8 @@ import config
 
 def send_alert(data):
     msg = data["msg"].encode("latin-1", "backslashreplace").decode("unicode_escape")
+
+    # Telegram
     if config.send_telegram_alerts:
         tg_bot = Bot(token=config.tg_token)
         try:
@@ -35,6 +36,7 @@ def send_alert(data):
         except Exception as e:
             print("[X] Telegram Error:\n>", e)
 
+    # Discord
     if config.send_discord_alerts:
         try:
             webhook = DiscordWebhook(
@@ -53,6 +55,7 @@ def send_alert(data):
         except Exception as e:
             print("[X] Discord Error:\n>", e)
 
+    # Slack
     if config.send_slack_alerts:
         try:
             slack = Slack(url="https://hooks.slack.com/services/" + data["slack"])
@@ -65,17 +68,7 @@ def send_alert(data):
         except Exception as e:
             print("[X] Slack Error:\n>", e)
 
-    if config.send_twitter_alerts:
-        tw_auth = tweepy.OAuthHandler(config.tw_ckey, config.tw_csecret)
-        tw_auth.set_access_token(config.tw_atoken, config.tw_asecret)
-        tw_api = tweepy.API(tw_auth)
-        try:
-            tw_api.update_status(
-                status=msg.replace("*", "").replace("_", "").replace("`", "")
-            )
-        except Exception as e:
-            print("[X] Twitter Error:\n>", e)
-
+    # Email
     if config.send_email_alerts:
         try:
             email_msg = MIMEText(
@@ -90,9 +83,9 @@ def send_alert(data):
             ) as server:
                 server.login(config.email_user, config.email_password)
                 server.sendmail(
-                    config.email_sender, config.email_receivers, email_msg.as_string()
+                    config.email_sender,
+                    config.email_receivers,
+                    email_msg.as_string(),
                 )
-                server.quit()
         except Exception as e:
             print("[X] Email Error:\n>", e)
-
