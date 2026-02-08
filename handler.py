@@ -8,7 +8,7 @@ import smtplib
 import ssl
 from email.mime.text import MIMEText
 
-import tweepy
+
 from discord_webhook import DiscordEmbed, DiscordWebhook
 from slack_webhook import Slack
 from telegram import Bot
@@ -95,3 +95,4 @@ def send_alert(data):
                 server.quit()
         except Exception as e:
             print("[X] Email Error:\n>", e)
+
